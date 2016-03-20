@@ -85,6 +85,9 @@ void problem::add_cycle(std::vector <unsigned long> path, double val){
         if(!((lower == begin && greater == end) || (lower == end) && (greater == begin))) {
             unsigned long edge_id = graph[lower][greater].id;
             double res = graph[lower][greater].resistance;
+            if (lower != a) {
+                res = -res;
+            }
             equation[edge_id] = res;
         }
     }
@@ -168,7 +171,7 @@ void problem::print_result(void){
     }
     ofs<<this->size<<" "<<this->edges<<std::endl;
     for(unsigned long i = 0; i < this->edges; i++){
-        ofs<<graph_edges[i].first<<" "<<graph_edges[i].second<<" "<<solution[i]<<std::endl;
+        ofs << graph_edges[i].first << " " << graph_edges[i].second << " " << std::abs(solution[i]) << std::endl;
     }
     ofs.close();
 }
