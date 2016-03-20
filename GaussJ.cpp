@@ -17,7 +17,7 @@ namespace mz{
 		}
 		Matrix(int r, int c){
 			this->rows =  r;
-			this->columns = r;
+			this->columns = c;
 			this->v = vector< vector<double> >(r);
 			for(int i = 0; i < r; i++){
 				vector<double> vec(c);

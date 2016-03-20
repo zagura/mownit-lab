@@ -12,14 +12,13 @@
 #include "mz_axb.h"
 
 class problem {
+public:
     struct Edge{
         Edge(){
             resistance = 0.0;
-            current = 0.0;
             id = 0;
         }
         double resistance;
-        double current;
         unsigned long id;
     };
     unsigned long size;
@@ -28,19 +27,31 @@ class problem {
     unsigned long begin;
     unsigned long end;
     std::vector <unsigned long> visited;
+//    std::vector <std::vector<double>> equations;
+    std::vector <double> b;
     mz::Matrix M;
     void get_data(std::string filename);
     std::vector <std::vector<Edge>> graph;
+    std::vector <std::pair<unsigned long, unsigned long>> graph_edges;
+    std::vector<std::vector<double>> current;
+    std::vector<std::vector<double>> velocity;
+    std::vector<double> velocity_b;
+    std::vector<double> solution;
 
     void current_Kirchhoff();
-    std::vector<std::vector<int>> current;
-    std::vector<std::vector<double>> velocity;
 
     void velocity_Kirchhoff();
 
-    void is_cycle(unsigned long begin_v, std::vector<unsigned long> path, unsigned long current_vertex);
+    void is_cycle(unsigned long begin_v, std::vector<unsigned long> path,
+                  unsigned long current_vertex, unsigned long last);
 
     void add_cycle(std::vector<unsigned long> path, double val);
+
+    void solve(void);
+
+    void print_result();
+
+    void full_problem(std::string filename);
 };
 
 

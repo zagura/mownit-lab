@@ -17,11 +17,10 @@ namespace mz{
     }
     Matrix::Matrix(int r, int c){
         this->rows =  r;
-        this->columns = r;
+        this->columns = c;
         this->v = vector< vector<double> >(r);
         for(int i = 0; i < r; i++){
-            vector<double> vec(c);
-            v[i] = vec;
+            v[i] = vector<double>(c);
         }
     }
     Matrix::Matrix(void){
@@ -187,8 +186,8 @@ Matrix multiply(Matrix& left, Matrix& right){
 
 vector <double> multiply(Matrix& left, vector<double> vec){
     if(left.columns != vec.size()) throw "Wrong arguments sizes";
-    vector<double> res(vec.size());
-    for(int r = 0; r < vec.size(); r++){
+    vector<double> res(left.rows);
+    for(int r = 0; r < left.rows; r++){
         double val = 0.0;
         for(int c = 0; c < left.columns; c++){
             val += left.v[r][c] * vec[c];
