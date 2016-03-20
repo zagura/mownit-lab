@@ -30,7 +30,6 @@ namespace mz {
         int column;
         double val;
     };
-
     struct LU_dec {
         LU_dec(const Matrix &L, const Matrix &U, std::vector<double> b);
 
@@ -66,5 +65,9 @@ namespace mz {
     void solve_lu_method(Matrix &A, std::vector<double *> &x, std::vector<double> &b);
 
     void solve_normalized_LU(Matrix &A, std::vector<double *> &x, std::vector<double> &b);
+
+    void multiple_row(std::vector<double> &row_v, std::vector<double> &b, int row, pivot p);
+
+    void scale(Matrix &M, std::vector<double> b, pivot p);
 }
 #endif //MOWNIT_MZ_AXB_H

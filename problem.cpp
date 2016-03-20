@@ -171,7 +171,7 @@ void problem::print_result(void){
     }
     ofs<<this->size<<" "<<this->edges<<std::endl;
     for(unsigned long i = 0; i < this->edges; i++){
-        ofs << graph_edges[i].first << " " << graph_edges[i].second << " " << std::abs(solution[i]) << std::endl;
+        ofs << graph_edges[i].first << " " << graph_edges[i].second << " " << solution[i] << std::endl;
     }
     ofs.close();
 }
