@@ -15,8 +15,8 @@ int main(){
     std::string filename;
     std::cin>>filename;
     problem p = problem();
-/*    p.begin = s;
+    p.begin = s;
     p.end = t;
-    p.sem = E;*/
+    p.sem = E;
     p.full_problem(filename);
 }

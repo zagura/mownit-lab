@@ -38,6 +38,11 @@ void problem::get_data(std::string filename) {
 
 
 void problem::current_Kirchhoff(){
+    /*
+     *  tworzę układ równań dla prądowego prawa Kirchhoffa
+     *  Każdemu węzłowi przyporządkowuje prądy wpływające i wypływające
+     *
+     */
     this->current = std::vector < std::vector <double> >(this->size);
     for(unsigned long i = 0; i< this->size; i++){
         this->current[i] = std::vector <double>(this->edges);
@@ -49,6 +54,11 @@ void problem::current_Kirchhoff(){
                 this->current[j][graph[i][j].id] = -1;
             }
         }
+    }
+    for(unsigned long i = 0; i < edges; i++){
+        double val = current[begin][i] + current[end][i];
+        current[begin][i] = val;
+        current[end][i] = val;
     }
 }
 
@@ -72,9 +82,11 @@ void problem::add_cycle(std::vector <unsigned long> path, double val){
         unsigned long b = path[(i+1)%path.size()];
         unsigned long lower = a < b ? a : b;
         unsigned long greater = a < b ? b : a;
-        unsigned long edge_id = graph[lower][greater].id;
-        double res = graph[lower][greater].resistance;
-        equation[edge_id] = res;
+        if(!((lower == begin && greater == end) || (lower == end) && (greater == begin))) {
+            unsigned long edge_id = graph[lower][greater].id;
+            double res = graph[lower][greater].resistance;
+            equation[edge_id] = res;
+        }
     }
     if(std::find(velocity.begin(), velocity.end(), equation) == velocity.end()){
         velocity.push_back(equation);
@@ -130,19 +142,20 @@ void problem::solve(void){
         b[r] = 0.0;
     }
     for(unsigned long r = this->size; r < rows; r++){
-        M.v[r] = velocity[r-this->size];
+        M.v[r] = velocity[r - this->size];
         b[r] = velocity_b[r - this->size];
     }
+  //  M.print();
     solution = std::vector<double>(rows);
     std::vector<double*> x = std::vector<double*>(rows);
     for(unsigned long i = 0; i < rows; i++) {
         x[i] = &(solution[i]);
     }
-    M.print();
-    for(int i = 0 ; i < b.size(); i++){
+  //  M.print();
+/*    for(int i = 0 ; i < b.size(); i++){
         std::cout<<b[i]<<"  ";
     }
-    std::cout<<std::endl;
+    std::cout<<std::endl;*/
     mz::solve_normalized_LU(M, x, b);
 }
 
@@ -161,13 +174,13 @@ void problem::print_result(void){
 }
 void problem::full_problem(std::string filename){
     this->get_data(filename);
-    std::cout<<"GET DATA FINISHED"<<std::endl;
+   // std::cout<<"GET DATA FINISHED"<<std::endl;
     this->current_Kirchhoff();
-    std::cout<<"CURRENT KIRCHHOFF FINISHED"<<std::endl;
+  // std::cout<<"CURRENT KIRCHHOFF FINISHED"<<std::endl;
     this->velocity_Kirchhoff();
-    std::cout<<"VELOCITY KIRCHHOFF FINISHED"<<std::endl;
+  //  std::cout<<"VELOCITY KIRCHHOFF FINISHED"<<std::endl;
     this->solve();
-    std::cout<<"SOLUTION FINISHED"<<std::endl;
+   // std::cout<<"SOLUTION FINISHED"<<std::endl;
     this->print_result();
-    std::cout<<"PRINTING FINISHED"<<std::endl;
+    //std::cout<<"PRINTING FINISHED"<<std::endl;
 }

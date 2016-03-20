@@ -243,8 +243,8 @@ LU_dec* LU_decomposition(Matrix& A, vector<double*>& x, vector<double> b){
         }
     }
     LU_dec* result = new LU_dec(L, U, b);
-    L.print();
-    U.print();
+    //L.print();
+    //U.print();
     return result;
 }
 
@@ -257,11 +257,13 @@ void solve_lu_method(Matrix& A, vector<double*>& x, vector<double>& b){
     LU_dec* lu = LU_decomposition(A,x,b);
     solve_triangle_down(lu->L, vars, lu->b);
     solve_triangle_up(lu->U , x, y);
+    delete lu;
 }
 
 void solve_normalized_LU(Matrix& A, vector <double*>&x, vector<double>& b){
     Matrix A_t = get_transpose(A);
     Matrix left = multiply(A_t, A);
+    //left.print();
     vector<double> right = multiply(A_t, b);
     solve_lu_method(left, x, right);
 }
