@@ -1,14 +1,17 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <cstdlib>
+//#include <cstdlib>
 #include <cmath>
 using namespace std;
 #define SEED 20160402
 #define TMP_MIN 100.00
-#define TEMP 0.9999998
+#define TEMP 0.999998
+#define MAX_ITER 1000000
+#define STATES 6
+#define SWAP 5 //arbitrary
 
-
+ofstream energy_file;
 struct point{
     int x, y;
     point(int x, int y){
@@ -30,7 +33,7 @@ struct point{
 };
 
 struct state{
-    long energy;
+    long long energy;
     vector<point> perm;
     int progress;
     state(){
@@ -64,18 +67,27 @@ struct state{
         this->count_energy();
         progress = 0;
     }
+
+
     state(const state& s){
-        int p1 = 0;
-        int p2 = 0;
-        while(p1 == p2) {
-            p1 = rand() % static_cast<int> (s.perm.size());
-            p2 = rand() % static_cast<int> (s.perm.size());
-        }
-        progress = 0;
-        this->perm = s.perm;
-        point tmp = perm[p1];
-        perm[p1] = perm[p2];
-        perm[p2] = tmp;
+            this->perm = s.perm;
+            progress = 0;
+            int count = 8;
+            while (count--) {
+                int p1 = 0;
+                int p2 = 0;
+                while (p1 == p2) {
+                    p1 = rand() % static_cast<int> (s.perm.size());
+                    if(SWAP == 0) {
+                        p2 = rand() % static_cast<int> (s.perm.size());
+                    }else if(SWAP > 1) {
+                        p2 = (p1 + 1) % (static_cast<int>(s.perm.size()));
+                    }
+                }
+                point tmp = perm[p1];
+                perm[p1] = perm[p2];
+                perm[p2] = tmp;
+            }
         this->count_energy();
     }
     state(const state& s, bool m) {
@@ -101,8 +113,13 @@ double step_temp(double t){
 }
 double probablity(long e1, long e2, double t){
     //e1 < e2
+    if(e2 < e1){
+        int tmp = e1;
+        e1 = e2;
+        e2 = tmp;
+    }
     double e = e2 - e1;
-    e /= t;
+    e /= (t);
     e *= -1;
     return exp(e);
 }
@@ -110,13 +127,19 @@ double probablity(long e1, long e2, double t){
 void make_step(state& current_state, double& temperature){
     current_state.progress++;
     state next = current_state;
+    for(int i = 0; i < STATES; i++){
+        state next1 = current_state;
+        if(next.energy > next1.energy){
+            next = next1;
+        }
+    }
     if(next.energy > current_state.energy){
         double p = probablity(current_state.energy, next.energy, temperature);
         double r = ((double) rand())/ ((double) RAND_MAX);
         temperature = step_temp(temperature);
         if(r <= p) {
             current_state = next;
-            temperature *= 0.999998;
+            temperature *= 0.99999998;
         }
     }
     else{
@@ -130,40 +153,55 @@ int main(int argc, char** argv) {
     vector<point> res;
     double temperature;
     string filename = argv[1];
-    state s(filename);
+    state s2(filename);
     long iter = 0;
-    state s2 = state(s,true);
+    res = s2.perm;
+    ofstream os2;
+    energy_file.open("energy.csv", fstream::out);
+    os2.open("first.csv", fstream::out);
+    os2<<res[0].print()<<";"<<res[res.size()-1].print()<<endl;
+    for(int i = 1; i < res.size(); i++){
+        os2<<res[i].print()<<";"<<res[i-1].print()<<endl;
+    }
+    os2.close();
     state smin;
-    smin = s;
+    smin = s2;
+   // long timing = 0;
+    long global_iter = 0;
     for(int i = 0; i < 5; i++){
-        s = s2;
+        state s = smin;
         temperature = TMP_MIN;
-        while (temperature > 1.5 && s.progress < 100 && iter < 5000000) {
+        while (temperature > 0 && s.progress < 100 && iter < MAX_ITER) {
             make_step(s, temperature);
-            cout << s.energy << endl;
+            if(s.energy < smin.energy) smin = s;
+            iter++;
+            global_iter++;
+            energy_file<<global_iter<<","<<s.energy<<"\n";
         }
         if (s.progress == 100) {
             //Heating, when there is no progress
-            iter -= 10000;
-            temperature += 20.0;
+            iter -= 1000;
+            temperature += 200.0;
             s.progress = 0;
-            while (temperature > 1.5 && s.progress < 100 && iter < 5000000) {
+            while (temperature > 0 && s.progress < 100 && iter < MAX_ITER) {
                 make_step(s, temperature);
-                cout << s.energy << endl;
+                if(s.energy < smin.energy) smin = s;
+                iter++;
+                global_iter++;
+                energy_file<<global_iter<<","<<s.energy<<"\n";
             }
         }
-        if(smin.energy > s.energy){
-            smin = s;
-            res = s.perm;
-        }
+        iter = 0;
     }
-
+    res = smin.perm;
     ofstream os;
     os.open("last.csv", fstream::out);
-    os<<res[0].print()<<"  "<<res[res.size()-1].print()<<endl;
+    os<<res[res.size()-1].print()<<";"<<res[0].print()<<endl;
     for(int i = 1; i < res.size(); i++){
-        os<<res[i].print()<<"  "<<res[i-1].print()<<endl;
+        os<<res[i-1].print()<<";"<<res[i].print()<<endl;
     }
+    os<<res[res.size()-1].print()<<";"<<res[0].print()<<endl;
     os.close();
+    energy_file.close();
     return 0;
 }

@@ -32,13 +32,15 @@ def generate_4groups():
 		for y in range(small):
 			points.append(point(x, y))
 
-	for i in range(4):
-		choosen = random.sample(points, n//4)
+	i = 0
+	choosen = random.sample(points, n)
+	for p in choosen:
 		x_move = i % 2 * ((size * 2) //  3)
 		y_move = i // 2 * ((size * 2) // 3)
-		for p in choosen:
-			p.move_p(x_move, y_move)
-			p.print_point()
+		p.move_p(x_move, y_move)
+		p.print_point()
+		i += 1
+		i %= 4
 
 def generate_9groups():
 	small = size // 5
@@ -47,13 +49,15 @@ def generate_9groups():
 		for y in range(small):
 			points.append(point(x, y))
 
-	for i in range(9):
-		choosen = random.sample(points, n//9)
+	choosen = random.sample(points, n)
+	i = 0
+	for p in choosen:
 		x_move = i % 3 * ((size * 2) //  5)
 		y_move = i // 3 * ((size * 2) // 5)
-		for p in choosen:
-			p.move_p(x_move, y_move)
-			p.print_point()
+		p.move_p(x_move, y_move)
+		p.print_point()
+		i += 1
+		i %= 9
 
 a = int(sys.argv[1])
 n = int(sys.argv[2])
